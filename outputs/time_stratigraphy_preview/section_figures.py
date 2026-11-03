@@ -9,13 +9,14 @@ from matplotlib.figure import Figure
 from matplotlib.colors import Normalize
 from matplotlib.cm import ScalarMappable
 from matplotlib.ticker import PercentFormatter
+from colorbar_settings import sand_color_style
 
 matplotlib.rcParams.update({'font.sans-serif': ['Microsoft YaHei', 'SimHei', 'DejaVu Sans'],
                             'axes.unicode_minus': False, 'font.size': 9})
 
 
 def draw_sections(model, sections, record, x_m, y_m, figure=None,
-                  stage_limits=None, bed_limits=None, sand_values=None, sand_mode='increment'):
+                  stage_limits=None, bed_limits=None, sand_values=None, sand_mode='increment', sand_colors=None):
     """Draw map, saved-stage sections, and matching sand-fraction sections."""
     fig = figure if figure is not None else Figure(figsize=(17.8, 8.8), layout='constrained')
     fig.clear()
@@ -25,7 +26,7 @@ def draw_sections(model, sections, record, x_m, y_m, figure=None,
     if bed_limits is None:
         bed_limits = (float(np.nanmin(top)), float(np.nanmax(top)))
     image = map_ax.pcolormesh(model.x / 1000, model.y / 1000,
-                             np.ma.masked_invalid(top.T), shading='nearest', cmap='terrain',
+                             np.ma.masked_invalid(top.T), shading='nearest', cmap='turbo',
                              vmin=bed_limits[0], vmax=bed_limits[1])
     fig.colorbar(image, ax=map_ax, label='当前床面高程 / m', shrink=.65, pad=.025)
     map_ax.plot(x_m / 1000, y_m / 1000, 'o', ms=6, mec='white', mfc='#d62f33')
@@ -43,6 +44,7 @@ def draw_sections(model, sections, record, x_m, y_m, figure=None,
     cmap = matplotlib.colormaps['turbo']
     section_axes = []
     sand_axes = []
+    sand_cmap, sand_norm, sand_ticks = sand_color_style(sand_colors)
     for row, sec in enumerate(sections):
         row_key = row if len(sections) > 1 else slice(None)
         ax = fig.add_subplot(grid[row_key, 1])
@@ -91,11 +93,15 @@ def draw_sections(model, sections, record, x_m, y_m, figure=None,
             z_at_edges[:, -1] = z_at_centres[:, -1]
             thickness = np.diff(z_at_centres, axis=0)
             visible = sec['valid'][None, :] & (thickness >= .001)
-            display = np.ma.masked_where(~visible, np.where(np.isfinite(q), q, -1.))
-            sand_cmap = matplotlib.colormaps['YlOrBr'].copy()
-            sand_cmap.set_under('#9ea3ab')
+            # Missing composition stays grey; values below a manual minimum
+            # saturate to the minimum colour instead of masquerading as missing.
+            from matplotlib.colors import ListedColormap
             sand_ax.pcolormesh(np.broadcast_to(edges_h, z_at_edges.shape), z_at_edges,
-                               display, shading='flat', cmap=sand_cmap, vmin=0, vmax=1,
+                               np.ma.masked_where(~visible, np.zeros_like(q)), shading='flat',
+                               cmap=ListedColormap(['#9ea3ab']), rasterized=True)
+            display = np.ma.masked_where(~visible | ~np.isfinite(q), q)
+            sand_ax.pcolormesh(np.broadcast_to(edges_h, z_at_edges.shape), z_at_edges,
+                               display, shading='flat', cmap=sand_cmap, norm=sand_norm,
                                rasterized=True)
             for stage in chosen:
                 sand_ax.plot(h, ss[stage], color='#172536', lw=.35, alpha=.46)
@@ -111,9 +117,8 @@ def draw_sections(model, sections, record, x_m, y_m, figure=None,
     fig.colorbar(ScalarMappable(norm=norm, cmap=cmap), ax=section_axes,
                  label='保存沉积阶段 / 形态天', shrink=.8, pad=.025)
     if sand_axes:
-        sand_cmap = matplotlib.colormaps['YlOrBr']
-        fig.colorbar(ScalarMappable(norm=Normalize(0, 1), cmap=sand_cmap), ax=sand_axes,
-                     label='砂体积含量 / %', ticks=np.linspace(0, 1, 6),
+        fig.colorbar(ScalarMappable(norm=sand_norm, cmap=sand_cmap), ax=sand_axes,
+                     label='砂体积含量 / %', ticks=sand_ticks,
                      format=PercentFormatter(xmax=1), shrink=.8, pad=.025)
     sand_caption = {'increment': '分期砂泥库存净增量估算；灰色为无法可靠估算的组分',
                     'mixed': '所选时刻实际保存的整床平均含砂率',

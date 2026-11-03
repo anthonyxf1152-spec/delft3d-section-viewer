@@ -3,6 +3,7 @@ from pathlib import Path
 import json
 
 import numpy as np
+from colorbar_settings import sand_color_style, validate_sand_colors
 
 
 def _axis_nodes(ranges):
@@ -32,16 +33,16 @@ def _axis_nodes(ranges):
     return [line, text, title]
 
 
-def _curtain_nodes(sections, morph_max, color_limits=None, sand_values=None):
+def _curtain_nodes(sections, morph_max, color_limits=None, sand_values=None, sand_colors=None):
     from matplotlib import colormaps
     from matplotlib.colors import Normalize
     from vispy.scene.visuals import Mesh, Line
     nodes, stats = [], []
     cmap = colormaps['turbo']
     norm = Normalize(*(color_limits or (0., morph_max)), clip=True)
+    sand_cmap, sand_norm, _ = sand_color_style(sand_colors)
     for sec in sections:
         q = None if sand_values is None else sand_values[sec['axis']]
-        sand_cmap = colormaps['YlOrBr']
         h, interfaces = sec['horizontal_m'] / 1000, sec['interfaces'] / 1000
         valid = sec['valid']
         fixed = sec['actual_fixed_m'] / 1000
@@ -71,7 +72,7 @@ def _curtain_nodes(sections, morph_max, color_limits=None, sand_values=None):
                         value = q[stage, k]
                         if not np.isfinite(value) and top[k] - bottom[k] <= 1e-10:
                             value = q[stage, j+1 if k == j else j]
-                        colors.append(sand_cmap(float(value)) if np.isfinite(value) else (.62, .64, .67, 1.))
+                        colors.append(sand_cmap(sand_norm(float(value))) if np.isfinite(value) else (.62, .64, .67, 1.))
                 n_triangles += 2
         if vertices:
             mesh = Mesh(vertices=np.asarray(vertices, dtype='f4'), faces=np.asarray(faces, dtype=np.uint32),
@@ -111,7 +112,7 @@ def _curtain_nodes(sections, morph_max, color_limits=None, sand_values=None):
 
 def create_canvas(model, sections, record, display_ve=500., max_surfaces=10,
                   surface_opacity=.38, size=(1660, 900), color_limits=None,
-                  curtain_field='stage'):
+                  curtain_field='stage', sand_colors=None):
     import cigvis
     from vispy import app, scene
     from cigvis.vispynodes import VisCanvas
@@ -133,7 +134,7 @@ def create_canvas(model, sections, record, display_ve=500., max_surfaces=10,
     sand_values = ({sec['axis']: model.sand_fraction_for_section(sec, curtain_field)[0] for sec in sections}
                    if curtain_field != 'stage' else None)
     curtains, curtain_stats = _curtain_nodes(sections, max(float(model.morph_days[-1]), 1.),
-                                             active_limits, sand_values)
+                                             active_limits, sand_values, sand_colors)
     # A local frame makes the selected section readable independently of the
     # full-domain surface overview. Both frames retain absolute world coordinates.
     all_x, all_y = [], []
@@ -162,7 +163,18 @@ def create_canvas(model, sections, record, display_ve=500., max_surfaces=10,
     colorbars = make_bar('turbo', active_limits, 'Saved stage / morph days')
     if curtain_field != 'stage':
         groups[0].extend(colorbars)
-        colorbars = make_bar('YlOrBr', (0., 100.), 'Sand volume fraction / %')
+        from cigvis.vispynodes import Colorbar
+        from matplotlib.cm import ScalarMappable
+        sand_cmap, sand_norm, sand_ticks = sand_color_style(sand_colors, percent=True)
+        class ContinuousSandColorbar(Colorbar):
+            def get_ScalarMappable(self):
+                # The base uses this flag to install explicit tick labels;
+                # our mappable remains continuous with the same midpoint norm
+                # used for the actual curtain face colours.
+                return ScalarMappable(cmap=sand_cmap, norm=sand_norm), {
+                    'ticks': sand_ticks, 'labels': [f'{v:g}' for v in sand_ticks]}
+        colorbars = [ContinuousSandColorbar(cmap=sand_cmap, clim=[sand_norm.vmin, sand_norm.vmax],
+                    discrete=True, disc_ticks=[sand_ticks], label_str='Sand volume fraction / %')]
     for node in colorbars:
         node.update_params(cbar_size=(100, 640))
     groups[1].extend(colorbars)
@@ -199,6 +211,7 @@ def create_canvas(model, sections, record, display_ve=500., max_surfaces=10,
     meta = {'record': int(record), 'hydro_days': float(model.hydro_days[record]),
             'morph_days': float(model.morph_days[record]), 'display_vertical_exaggeration': float(display_ve),
             'color_limits_morph_days': list(active_limits),
+            'sand_color_settings': validate_sand_colors(sand_colors),
             'curtain_field': curtain_field,
             'curtain_field_interpretation': {
                 'stage': 'Saved-time-inferred geometric stages; no composition assigned.',

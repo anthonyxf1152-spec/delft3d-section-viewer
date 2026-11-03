@@ -1,4 +1,4 @@
-name: Source loader checks
+name: Viewer numerical checks
 
 on:
   push:
@@ -17,5 +17,5 @@ jobs:
         run: python -m pip install numpy==2.5.4 scipy==1.18.1
       - name: Check all Python source syntax
         run: python -m compileall -q outputs check_environment.py
-      - name: Test transactional loading with synthetic files
-        run: python -m unittest discover -s outputs/time_stratigraphy_preview -p test_project_loader.py -v
+      - name: Test loading, continuation series and seismic modelling
+        run: python -m unittest discover -s outputs/time_stratigraphy_preview -p "test_*.py" -v

@@ -27,6 +27,7 @@ volume/
 cache/
 caches/
 .cache/
+_backups/
 exports/
 interactive_demo/
 results/

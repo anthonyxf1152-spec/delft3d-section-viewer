@@ -10,12 +10,12 @@
     {
       "path": ".github/workflows/ci.yml",
       "bytes": 644,
-      "sha256": "89336f9386a1b748d99382f27adc470754330fef794f8ebcda86c1425a38ebc2"
+      "sha256": "040b26bd4c37b109e9c35e1919e75c8c8d0b0c49a44ded6eefe63a54933a203b"
     },
     {
       "path": ".gitignore",
-      "bytes": 709,
-      "sha256": "459325e77e97ebed7e9d6dc592c8ab59d23fe0c81bbfb5c4067c0da2ccd31134"
+      "bytes": 719,
+      "sha256": "a52da612d87f41fd00fdba193defe1775776423332326fbf634c28ca4977b81d"
     },
     {
       "path": "check_environment.py",
@@ -59,18 +59,18 @@
     },
     {
       "path": "outputs/time_stratigraphy_preview/cigvis_time_viewer.py",
-      "bytes": 15246,
-      "sha256": "334fe3c15290acf8f1744877db035aa8c1ea3df4d72559cf69cc155c9b5726e0"
+      "bytes": 16226,
+      "sha256": "1491d8cb64fbd2a18af927a98d576f1e3d7f0c38ca1d601e01766d0d32cca690"
     },
     {
       "path": "outputs/time_stratigraphy_preview/colorbar_settings.py",
-      "bytes": 1561,
-      "sha256": "c39f07ae02780f2705ac520852d5c654ece69914ae421cb7f867467be9cc2c10"
+      "bytes": 3780,
+      "sha256": "783ea0c94a7379875952679667aee69721088321bff550c466b7dc342a07ceed"
     },
     {
       "path": "outputs/time_stratigraphy_preview/interactive_sections.py",
-      "bytes": 30592,
-      "sha256": "83ca6d4da3500795745491664a05a4138c28b01497980cf5f0b287694a61cd4b"
+      "bytes": 33848,
+      "sha256": "426698934c8c09a1696db553fe3f5f771f97da5351b3c308bbf66f238be7a7fe"
     },
     {
       "path": "outputs/time_stratigraphy_preview/project_loader.py",
@@ -79,8 +79,8 @@
     },
     {
       "path": "outputs/time_stratigraphy_preview/README_交互程序.md",
-      "bytes": 6959,
-      "sha256": "3ea3b8fbdf989b9894267275c957717f80d27d3092d1e9909561656c4c892d83"
+      "bytes": 10737,
+      "sha256": "d822e3749181791040176e361c6072ed4237e5fcf5692a5cdb065ed20a9b7687"
     },
     {
       "path": "outputs/time_stratigraphy_preview/run_interactive.py",
@@ -94,13 +94,13 @@
     },
     {
       "path": "outputs/time_stratigraphy_preview/section_figures.py",
-      "bytes": 10261,
-      "sha256": "89a7acdcbf0cec1f49e5c8e70c8e8eb7a83fda4eeb0e0ecb55e36c190819be20"
+      "bytes": 10686,
+      "sha256": "68b67fcdd4e17e2a062d2118fad1de48df16865c94ebb4715d81662e24bf534a"
     },
     {
       "path": "outputs/time_stratigraphy_preview/source_dialog.py",
-      "bytes": 8697,
-      "sha256": "6505fd1c98a34369a6c784859f7b98ecdd27e8f98a44498fcee2f793742ca8d7"
+      "bytes": 14673,
+      "sha256": "6660840681617ecae92b78e64fc71a02d51f05de8ce356bfaa458c2f5a9cde43"
     },
     {
       "path": "outputs/time_stratigraphy_preview/stratigraphy_cigvis_nodes.py",
@@ -119,8 +119,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 9556,
-      "sha256": "4f95ec150daccdceffe36dba00c8d0e0438b68c2a916a590b28f1d8518514719"
+      "bytes": 15825,
+      "sha256": "d7f23e0d0bf6dab1b828b11d7515406329c86a8b4c0a1ad3caf4b8cfdf6afb49"
     },
     {
       "path": "requirements.txt",
@@ -136,6 +136,41 @@
       "path": "THIRD_PARTY_NOTICES.md",
       "bytes": 1054,
       "sha256": "c245543f80e473233855e85ff8f006ee5071392148ed59f41eb79677fe406f98"
+    },
+    {
+      "path": "outputs/time_stratigraphy_preview/series_loader.py",
+      "bytes": 14049,
+      "sha256": "51c9a5e2099996b086d3e4aa9aa34d8063dfc759fa80ed26d59938bb661ff4b4"
+    },
+    {
+      "path": "outputs/time_stratigraphy_preview/test_series_loader.py",
+      "bytes": 6575,
+      "sha256": "a7fcf829d465792e20590ed2c63227d0b6347849f0e3e273a49590621390d543"
+    },
+    {
+      "path": "outputs/time_stratigraphy_preview/seismic_forward.py",
+      "bytes": 18712,
+      "sha256": "fe69cfe15f6d8ad638681448866526028d377d0f0ac7ea9ece8e50326feb3f3c"
+    },
+    {
+      "path": "outputs/time_stratigraphy_preview/seismic_reference.py",
+      "bytes": 4709,
+      "sha256": "d19c90271321f9e82cc8be9f16504a80ba9f707b802e28dbe699901ac0b64d27"
+    },
+    {
+      "path": "outputs/time_stratigraphy_preview/seismic_window.py",
+      "bytes": 16731,
+      "sha256": "063b2e4544d48e66ae075955c6772cc0ebf420f04d7849dd0483a91b05b44cb2"
+    },
+    {
+      "path": "outputs/time_stratigraphy_preview/test_seismic_forward.py",
+      "bytes": 7529,
+      "sha256": "a801370901da8a15cfea14dd81832acb906d0d78fb245763f6cba2df26795c29"
+    },
+    {
+      "path": "outputs/time_stratigraphy_preview/colorbar_editor.py",
+      "bytes": 5868,
+      "sha256": "0ff16e7e6f7bf3ea1283656c9ed5d091047e7dfde4f44e2a15d90764da2b25d8"
     }
   ]
 }

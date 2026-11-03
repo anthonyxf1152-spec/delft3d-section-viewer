@@ -17,6 +17,7 @@ from stratigraphy_model import StratigraphyModel
 from section_figures import draw_sections, export_sections
 from cigvis_time_viewer import create_canvas, save_canvas
 from colorbar_settings import color_limits
+from colorbar_editor import SandColorEditor, sand_color_state
 
 HERE = Path(__file__).resolve().parent
 def reference_positions(model):
@@ -54,6 +55,7 @@ class SectionWindow(QtWidgets.QMainWindow):
         self.sand_values = {}
         self.map_ax = None
         self.three_d_window = None
+        self.seismic_window = None
         self.export_root = Path(export_root or HERE / 'exports')
         self._ready = False
         presets = reference_positions(model)
@@ -75,14 +77,24 @@ class SectionWindow(QtWidgets.QMainWindow):
         panel.addWidget(heading)
         subtitle = QtWidgets.QLabel('选择时刻与位置，查看最终保留到该时刻的层段。')
         subtitle.setWordWrap(True); panel.addWidget(subtitle)
-        self.open_source_button = QtWidgets.QPushButton('打开其他 DAT / DEF 结果…')
+        self.open_source_button = QtWidgets.QPushButton('打开 / 合并 DAT / DEF 结果…')
         self.open_source_button.clicked.connect(self.open_project); panel.addWidget(self.open_source_button)
         source = getattr(model, 'source_info', {})
         source_path = Path(source.get('dat_file', ''))
         source_name = f'{source_path.parent.name} / {source_path.name}' if source.get('dat_file') else model.volume_dir.name
+        if source.get('kind') == 'continuation_series':
+            source_name = f"多期合并 · {len(source['sources'])} 期 · {model.record_count} 个时刻"
         self.source_label = QtWidgets.QLabel(f'当前结果：{source_name}')
         self.source_label.setTextFormat(QtCore.Qt.PlainText)
-        self.source_label.setWordWrap(True); self.source_label.setToolTip(str(source.get('dat_file', model.volume_dir)))
+        self.source_label.setWordWrap(True)
+        details = str(source.get('dat_file', model.volume_dir))
+        if source.get('kind') == 'continuation_series':
+            details = '\n'.join(Path(s['dat_file']).name for s in source['sources'])
+            gaps = [s['unobserved_interval'] for s in source['seams'] if 'unobserved_interval' in s]
+            if gaps:
+                self.source_label.setText(self.source_label.text() + '\n含未保存时段（悬停查看）')
+                details += '\n' + '\n'.join(f"未保存：水动力 {g['previous_hydro_days']:g} → {g['next_hydro_days']:g} 天；未插值" for g in gaps)
+        self.source_label.setToolTip(details)
         panel.addWidget(self.source_label)
         time_group = QtWidgets.QGroupBox('1  选择保存时刻')
         time_layout = QtWidgets.QVBoxLayout(time_group)
@@ -149,10 +161,18 @@ class SectionWindow(QtWidgets.QMainWindow):
         self.sand_mode.addItem('当前混合床平均', 'mixed')
         colors_form.addRow('二维含砂率', self.sand_mode)
         panel.addWidget(colors)
+        self.sand_color_editor = SandColorEditor()
+        self.sand_color_state = sand_color_state()
+        panel.addWidget(self.sand_color_editor)
         self.update_button = QtWidgets.QPushButton('更新剖面')
         self.update_button.setMinimumHeight(38); self.update_button.clicked.connect(self.update_plot)
         self.update_button.setStyleSheet('background:#245a7d;color:white;font-weight:600;border-radius:5px;')
         panel.addWidget(self.update_button)
+        self.seismic_button = QtWidgets.QPushButton('当前切片地震正演…')
+        self.seismic_button.setMinimumHeight(36)
+        self.seismic_button.setToolTip('对当前时刻和 XZ / YZ 位置计算声阻抗反射系数与 30 Hz PSF 褶积响应。')
+        self.seismic_button.clicked.connect(self.show_seismic)
+        panel.addWidget(self.seismic_button)
         three_group = QtWidgets.QGroupBox('4  Cigvis 三维显示')
         three_form = QtWidgets.QFormLayout(three_group)
         self.ve_spin = QtWidgets.QDoubleSpinBox(); self.ve_spin.setRange(.1, 2000)
@@ -210,6 +230,7 @@ class SectionWindow(QtWidgets.QMainWindow):
         for control in (self.stage_min, self.stage_max, self.bed_min, self.bed_max):
             control.valueChanged.connect(self.mark_dirty)
         self._ready = True
+        self.sand_color_state.changed.connect(self.sand_colors_changed)
         self.sync_color_controls()
         self.time_changed(self.time_combo.currentIndex())
         self._initial_plot_ok = self.update_plot()
@@ -278,7 +299,13 @@ class SectionWindow(QtWidgets.QMainWindow):
                 'sand_mode_2d': self.sand_mode.currentData(),
                 'curtain_field': self.curtain_field.currentData(),
                 'stage_color_mode': stage_mode, 'stage_color_limits_morph_days': stage_limits,
-                'bed_color_mode': bed_mode, 'bed_color_limits_elevation_m': bed_limits}
+                'bed_color_mode': bed_mode, 'bed_color_limits_elevation_m': bed_limits,
+                'sand_color_settings': dict(self.sand_color_state.config)}
+
+    def sand_colors_changed(self, _config):
+        if self._ready and self.update_plot():
+            if self.three_d_window is not None and self.three_d_window.isVisible():
+                self.show_3d()
 
     def mark_dirty(self, *_):
         if self._ready:
@@ -289,6 +316,11 @@ class SectionWindow(QtWidgets.QMainWindow):
         self.time_slider.blockSignals(True); self.time_slider.setValue(index); self.time_slider.blockSignals(False)
         self.time_info.setText(f'水动力时间：{self.model.hydro_days[index]:.2f} 天\n'
                                f'形态时间：{self.model.morph_days[index]:.2f} 天（记录从0开始）')
+        source = self.model.source_info
+        if source.get('kind') == 'continuation_series':
+            origin = source['record_sources'][index]
+            name = Path(source['sources'][origin['source_index']]['dat_file']).name
+            self.time_info.setText(self.time_info.text() + f"\n来源：{name} · 原记录 {origin['source_record']}")
         self.sync_color_controls()
         self.mark_dirty()
 
@@ -317,7 +349,7 @@ class SectionWindow(QtWidgets.QMainWindow):
                                            selected['x_m'], selected['y_m'], self.figure,
                                            selected['stage_color_limits_morph_days'],
                                            selected['bed_color_limits_elevation_m'],
-                                           self.sand_values, selected['sand_mode_2d'])
+                                           self.sand_values, selected['sand_mode_2d'], selected['sand_color_settings'])
             self.figure_canvas.draw()
             self.update_button.setText('更新剖面')
             descriptions = []
@@ -347,7 +379,23 @@ class SectionWindow(QtWidgets.QMainWindow):
         return create_canvas(self.model, sections, selected['record'], selected['display_ve'],
                              selected['max_surfaces'], selected['surface_opacity'],
                              color_limits=selected['stage_color_limits_morph_days'],
-                             curtain_field=selected['curtain_field'])
+                             curtain_field=selected['curtain_field'], sand_colors=selected['sand_color_settings'])
+
+    def show_seismic(self):
+        if self.seismic_window is not None and self.seismic_window.is_running:
+            self.seismic_window.raise_(); self.seismic_window.activateWindow(); return
+        if not self.update_plot():
+            return
+        from seismic_window import SeismicWindow
+        if self.seismic_window is not None:
+            self.seismic_window.close()
+            self.seismic_window.deleteLater()
+        self.seismic_window = SeismicWindow(self.model, self.sections, self.export_root, self)
+        self.seismic_window.busyChanged.connect(lambda busy: self.open_source_button.setEnabled(not busy))
+        if self.testAttribute(QtCore.Qt.WA_DontShowOnScreen):
+            self.seismic_window.setAttribute(QtCore.Qt.WA_DontShowOnScreen, True)
+        self.seismic_window.show()
+        self.seismic_window.compute()
 
     def show_3d(self):
         if not self.update_plot():
@@ -427,6 +475,11 @@ class SectionWindow(QtWidgets.QMainWindow):
         QtWidgets.QMessageBox.warning(self, '无法绘制', str(exc))
 
     def closeEvent(self, event):
+        if self.seismic_window is not None:
+            if self.seismic_window.is_running:
+                self.statusBar().showMessage('地震正演仍在运行，请等待完成后关闭。')
+                event.ignore(); return
+            self.seismic_window.close()
         if self.three_d_window is not None:
             self.three_d_window.close()
         super().closeEvent(event)
