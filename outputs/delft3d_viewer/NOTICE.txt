@@ -1,0 +1,43 @@
+NEFIS reader notice
+===================
+
+nefis_reader.py is a scoped read-only Python implementation of the NEFIS 5
+split-file disk layout, based on the documented parsing and access algorithms
+in Deltares Delft3D MATLAB routines vs_use.m and vs_let.m.
+
+Upstream copyright notice:
+Copyright (C) 2011-2020 Stichting Deltares.
+
+Upstream source used for the format/algorithm reference:
+C:\Program Files\Deltares\Delft3D 4.04.02\x64\delft3d_matlab\vs_use.m
+  Id: vs_use.m 65778 2020-01-14 14:07:42Z mourits
+C:\Program Files\Deltares\Delft3D 4.04.02\x64\delft3d_matlab\vs_let.m
+  Id: vs_let.m 65778 2020-01-14 14:07:42Z mourits
+
+Public upstream repository:
+https://github.com/Deltares/Delft3D
+
+Modification notice (2026-11-01):
+The MATLAB layout/access algorithms have been reimplemented in Python for
+read-only NEFIS 5 split .dat/.def files with one-dimensional map record groups.
+The Python reader uses native 64-bit file seeking, reads one record/element at
+a time, exposes metadata and NumPy arrays, validates layout sizes and pointer
+chains, and includes an on-disk extent check for latest candidate records.
+The reader is not the original Deltares software and has a smaller scope.
+
+nefis_reader.py is distributed under the GNU Lesser General Public License,
+version 2.1 or (at your option) any later version. The full version 2.1 text is
+included in LICENSE-LGPL-2.1.txt, copied verbatim from the official repository:
+https://raw.githubusercontent.com/Deltares/Delft3D/main/lgpl-2.1.txt
+
+This software is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for details.
+
+All indications and logos of, and references to, "Delft3D" and "Deltares" are
+registered trademarks of Stichting Deltares, and remain the property of
+Stichting Deltares. All rights reserved.
+
+Scientific coordinate semantics were checked against the installed Deltares
+private/d3d_trimfil.m: bed interface elevation = -DPS - DP_BEDLYR.
+DP_BEDLYR is a cumulative distance below the current bed surface in this file.

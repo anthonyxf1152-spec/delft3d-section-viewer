@@ -1,0 +1,141 @@
+{
+  "format": 1,
+  "scope": "source-only explicit allowlist",
+  "files": [
+    {
+      "path": ".gitattributes",
+      "bytes": 151,
+      "sha256": "01335ec778d6c7b6ccf4acd2acaeff868d160b94a5af4d468a083fcb2894bbaa"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "bytes": 644,
+      "sha256": "89336f9386a1b748d99382f27adc470754330fef794f8ebcda86c1425a38ebc2"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 709,
+      "sha256": "459325e77e97ebed7e9d6dc592c8ab59d23fe0c81bbfb5c4067c0da2ccd31134"
+    },
+    {
+      "path": "check_environment.py",
+      "bytes": 3252,
+      "sha256": "bf69e74c74854b189037c2d427a2a945268cfc66bee348ad9814227d907ccc13"
+    },
+    {
+      "path": "environment.yml",
+      "bytes": 263,
+      "sha256": "3c1df7b64f786a347c506c932803b8b29cc1597c74e6ef36f5831cb2b3f11f8d"
+    },
+    {
+      "path": "install_environment.cmd",
+      "bytes": 1472,
+      "sha256": "39e96506d89655f362ee1f08477f356996c85f2b4f2234b09fb344d784e73475"
+    },
+    {
+      "path": "outputs/delft3d_viewer/LICENSE-LGPL-2.1.txt",
+      "bytes": 26521,
+      "sha256": "592987e8510228d546540b84a22444bde98e48d03078d3b2eefcd889bec5ce8c"
+    },
+    {
+      "path": "outputs/delft3d_viewer/nefis_reader.py",
+      "bytes": 12083,
+      "sha256": "d393efc162e4467b8d0fd375e1e7cc0c460f0128ae6ef20fa9206ad94579d3c3"
+    },
+    {
+      "path": "outputs/delft3d_viewer/NOTICE.txt",
+      "bytes": 2141,
+      "sha256": "fb8248aefc06645a09e52b72fb7aff69e6d1db234c63270ed8c9011ee9cdf123"
+    },
+    {
+      "path": "outputs/time_stratigraphy_preview/build_3d_surfaces.py",
+      "bytes": 16338,
+      "sha256": "286d43b542b153982c91c9d5b8aa04ff4cb9879c3c7505595f6ffc48010d076d"
+    },
+    {
+      "path": "outputs/time_stratigraphy_preview/build_sand_cache.py",
+      "bytes": 7669,
+      "sha256": "98cae461ed397ca39f8748722b2a9eba755f983d8d9dd65ebb2b0f7969b1a915"
+    },
+    {
+      "path": "outputs/time_stratigraphy_preview/cigvis_time_viewer.py",
+      "bytes": 15246,
+      "sha256": "334fe3c15290acf8f1744877db035aa8c1ea3df4d72559cf69cc155c9b5726e0"
+    },
+    {
+      "path": "outputs/time_stratigraphy_preview/colorbar_settings.py",
+      "bytes": 1561,
+      "sha256": "c39f07ae02780f2705ac520852d5c654ece69914ae421cb7f867467be9cc2c10"
+    },
+    {
+      "path": "outputs/time_stratigraphy_preview/interactive_sections.py",
+      "bytes": 30592,
+      "sha256": "83ca6d4da3500795745491664a05a4138c28b01497980cf5f0b287694a61cd4b"
+    },
+    {
+      "path": "outputs/time_stratigraphy_preview/project_loader.py",
+      "bytes": 10742,
+      "sha256": "e89b84b625da443e0f4efdab9f04d596d247e8dea6e9d8b0984e4150a888f98d"
+    },
+    {
+      "path": "outputs/time_stratigraphy_preview/README_交互程序.md",
+      "bytes": 6959,
+      "sha256": "3ea3b8fbdf989b9894267275c957717f80d27d3092d1e9909561656c4c892d83"
+    },
+    {
+      "path": "outputs/time_stratigraphy_preview/run_interactive.py",
+      "bytes": 570,
+      "sha256": "fc4bfb6b63d284dadb0fa4ffbe098b801bf3e163a8a7a1f26efac174f06c1fad"
+    },
+    {
+      "path": "outputs/time_stratigraphy_preview/sand_completion.py",
+      "bytes": 4184,
+      "sha256": "1ede8d1052779142123a3845d943a4ca7dab68a57d9a2e2c1a01afd0fcfa5a05"
+    },
+    {
+      "path": "outputs/time_stratigraphy_preview/section_figures.py",
+      "bytes": 10261,
+      "sha256": "89a7acdcbf0cec1f49e5c8e70c8e8eb7a83fda4eeb0e0ecb55e36c190819be20"
+    },
+    {
+      "path": "outputs/time_stratigraphy_preview/source_dialog.py",
+      "bytes": 8697,
+      "sha256": "6505fd1c98a34369a6c784859f7b98ecdd27e8f98a44498fcee2f793742ca8d7"
+    },
+    {
+      "path": "outputs/time_stratigraphy_preview/stratigraphy_cigvis_nodes.py",
+      "bytes": 11692,
+      "sha256": "82fd256b28d38a92e4acb537cf74b27765f1f7039887ab3e49a7dae0db7250c4"
+    },
+    {
+      "path": "outputs/time_stratigraphy_preview/stratigraphy_model.py",
+      "bytes": 15722,
+      "sha256": "9c54e5620a671dfe86e0766c398f25a2d980735387176c242400ad2fd4487f63"
+    },
+    {
+      "path": "outputs/time_stratigraphy_preview/test_project_loader.py",
+      "bytes": 5423,
+      "sha256": "99ceebf012aa5efc83352d6c74fcfd3606edff616f0c687afd6a2a31b455b486"
+    },
+    {
+      "path": "README.md",
+      "bytes": 9556,
+      "sha256": "4f95ec150daccdceffe36dba00c8d0e0438b68c2a916a590b28f1d8518514719"
+    },
+    {
+      "path": "requirements.txt",
+      "bytes": 245,
+      "sha256": "9d0df4c705bb49f0c459607e91fb82d8a9a3b02b88295bca5afae9a07cd980b5"
+    },
+    {
+      "path": "start.cmd",
+      "bytes": 1979,
+      "sha256": "e88c2a41753d8c05fb2e375bb9c0101a53750e71c7375d7ae75804033341e836"
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "bytes": 1054,
+      "sha256": "c245543f80e473233855e85ff8f006ee5071392148ed59f41eb79677fe406f98"
+    }
+  ]
+}
