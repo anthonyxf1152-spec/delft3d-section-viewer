@@ -193,6 +193,8 @@ class SectionWindow(QtWidgets.QMainWindow):
         three_form.addRow('三维剖面着色', self.curtain_field)
         self.three_button = QtWidgets.QPushButton('Cigvis三维展示')
         self.three_button.clicked.connect(self.show_3d); three_form.addRow(self.three_button)
+        self.saved_sand_button = QtWidgets.QPushButton('读取三维含砂率 NPY…')
+        self.saved_sand_button.clicked.connect(self.show_saved_sand); three_form.addRow(self.saved_sand_button)
         panel.addWidget(three_group)
         self.export_button = QtWidgets.QPushButton('导出当前结果')
         self.export_button.setMinimumHeight(34); self.export_button.clicked.connect(lambda: self.export_current())
@@ -395,7 +397,11 @@ class SectionWindow(QtWidgets.QMainWindow):
         if self.testAttribute(QtCore.Qt.WA_DontShowOnScreen):
             self.seismic_window.setAttribute(QtCore.Qt.WA_DontShowOnScreen, True)
         self.seismic_window.show()
-        self.seismic_window.compute()
+        self.seismic_window.estimate_grid()
+
+    def show_saved_sand(self):
+        from saved_sand_viewer import open_saved_sand_viewer
+        open_saved_sand_viewer(self)
 
     def show_3d(self):
         if not self.update_plot():
@@ -497,6 +503,7 @@ def main(argv=None):
     parser.add_argument('--volume', type=Path, default=HERE / 'volume')
     parser.add_argument('--export-root', type=Path)
     parser.add_argument('--open-3d', action='store_true', help='Open the CIGVis window alongside the control window.')
+    parser.add_argument('--sand-model', type=Path, help='Open a saved 3-D sand NPY model without loading DAT/DEF.')
     parser.add_argument('--render-demo', action='store_true', help='Render real UI and two snapshot exports, then exit.')
     args = parser.parse_args(argv)
     if args.def_file is not None and args.dat is None:
@@ -505,6 +512,10 @@ def main(argv=None):
     app.setApplicationName('Delft3DSectionViewer')
     app.setOrganizationName('Delft3DTools')
     app.setFont(QtGui.QFont('Microsoft YaHei', 9))
+    if args.sand_model is not None:
+        from saved_sand_viewer import open_saved_sand_viewer
+        open_saved_sand_viewer(model_path=args.sand_model)
+        return app.exec()
     if args.dat is not None or not (args.volume / 'native_geometry.npz').is_file():
         from source_dialog import open_source
         config = None
